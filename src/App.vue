@@ -1,14 +1,14 @@
 <template>
   <div id="app">
-    <p>yooo</p>
-    <p>{{ msg }}</p>
-    <img alt="Vue logo" src="./assets/logo.png" />
-    <HelloWorld msg="Welcome to Your Vue.js App" />
+    <!-- <img alt="Vue logo" src="./assets/logo.png" />
+    <HelloWorld msg="Welcome to Your Vue.js App" /> -->
+    <!-- <AvatarStack /> -->
+    <Container />
   </div>
 </template>
 
 <script>
-import HelloWorld from "./components/HelloWorld.vue";
+import Container from "./components/Container.vue";
 import { mapGetters, mapActions, mapMutations } from "vuex";
 
 export default {
@@ -24,17 +24,8 @@ export default {
     this.isAdmin = true;
     this.instantiateAbly({ username: "Srush", isAdmin: true });
   },
-  computed: {
-    ...mapGetters(["getCollabMembers"])
-  },
-  watch: {
-    getCollabMembers: function (msg) {
-      console.log("RECEIVED MESSAGE IN COMPONENT", msg);
-      this.msg = msg;
-    }
-  },
   components: {
-    HelloWorld
+    Container
   },
   methods: {
     ...mapActions(["instantiateAbly"])
@@ -49,6 +40,5 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
 }
 </style>
