@@ -11,9 +11,9 @@ export default new Vuex.Store({
     spaceClient: null,
     myClientId: null,
     collabSpace: null,
-    allAvatarColours: ["bg-red-400", "bg-orange-400", "bg-green-400", "bg-amber-400", "bg-lime-400", "bg-cyan-400", "bg-blue-400", "bg-indigo-400", "bg-fuschsia-400"],
+    allAvatarColours: ["red", "orange", "green", "amber", "lime", "cyan", "blue", "indigo"],
     collabMembers: [],
-    collabLength: 0
+    locationUpdate: {}
   },
   getters: {
     getAblyClient: (state) => state.ablyClient,
@@ -21,7 +21,7 @@ export default new Vuex.Store({
     getMyClientId: (state) => state.myClientId,
     getCollabSpace: (state) => state.collabSpace,
     getCollabMembers: (state) => state.collabMembers,
-    getCollabLength: (state) => state.collabLength
+    getLocationUpdate: (state) => state.locationUpdate
   },
 
   mutations: {
@@ -36,6 +36,12 @@ export default new Vuex.Store({
     },
     setMyClientId(state, id) {
       state.myClientId = id;
+    },
+    setCollabMembers(state, members) {
+      state.collabMembers = members;
+    },
+    setLocationUpdate(state, change) {
+      state.locationUpdate = change;
     }
   },
   actions: {
@@ -56,18 +62,24 @@ export default new Vuex.Store({
         avatarColour: context.state.allAvatarColours[Math.floor(Math.random() * context.state.allAvatarColours.length)]
       });
       context.dispatch("subscribeToMembers");
+      context.dispatch("subscribeToLocations");
     },
     generateMyClientId(context) {
-      console.log("abc");
       context.commit("setMyClientId", Math.random().toString(36).substring(2, 16));
     },
     subscribeToMembers(context) {
       context.state.collabSpace.on("membersUpdate", (members) => {
-        console.log("member update", members);
-        context.state.collabMembers = members;
-        console.log("All users are", context.state.collabMembers.length);
-        // console.log("total user count", context.state.collabMembers.length);
+        context.commit("setCollabMembers", members);
+        console.log("Total user count", context.state.collabMembers.length, "Members:", context.state.collabMembers[0].location);
       });
+    },
+    subscribeToLocations(context) {
+      context.state.collabSpace.locations.on("locationUpdate", (change) => {
+        context.commit("setLocationUpdate", change);
+      });
+    },
+    setBlockLocation(context, element) {
+      context.state.collabSpace.locations.set({ divId: element.target.id });
     }
   }
 });
