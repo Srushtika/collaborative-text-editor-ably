@@ -1,6 +1,7 @@
 <template>
-  <div class="bg-white text-left p-2.5 font-ui-sans-serif mx-11">
+  <div class="bg-white text-left p-2.5 font-ui-sans-serif mx-11" @mousemove="mouseMove">
     <AvatarStack />
+    <Cursors />
     <div
       id="header-h1"
       class="text-4xl font-black p-2 hover:bg-gray-100 border border-transparent"
@@ -100,6 +101,7 @@
 
 <script>
 import AvatarStack from "./AvatarStack.vue";
+import Cursors from "./Cursors.vue";
 import { mapGetters, mapActions, mapMutations } from "vuex";
 export default {
   name: "TextEditor",
@@ -139,10 +141,14 @@ export default {
     }
   },
   methods: {
-    ...mapActions(["setBlockLocation"])
+    ...mapActions(["setBlockLocation", "setCursorLocation"]),
+    mouseMove(event) {
+      // this.setCursorLocation(event.clientX, event.clientY);
+    }
   },
   components: {
-    AvatarStack
+    AvatarStack,
+    Cursors
   }
 };
 </script>

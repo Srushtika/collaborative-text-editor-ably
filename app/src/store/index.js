@@ -13,7 +13,8 @@ export default new Vuex.Store({
     collabSpace: null,
     allAvatarColours: ["red", "orange", "green", "amber", "lime", "cyan", "blue", "indigo"],
     collabMembers: [],
-    locationUpdate: {}
+    locationUpdate: {},
+    pointer: null
   },
   getters: {
     getAblyClient: (state) => state.ablyClient,
@@ -46,27 +47,30 @@ export default new Vuex.Store({
   },
   actions: {
     instantiateAbly(context) {
-      context.dispatch("generateMyClientId");
+      //context.dispatch("generateMyClientId");
       const ablyClient = new Ably.Realtime({
-        key: "",
-        clientId: context.state.myClientId
+        authUrl: "http://localhost:8082/auth-ably"
       });
-      const spaceClient = new Spaces(ablyClient);
-      const collabSpace = spaceClient.get("text-editor");
-      context.commit("setAblyClient", ablyClient);
-      context.commit("setSpaceClient", spaceClient);
-      context.commit("setCollabSpace", collabSpace);
-      context.state.collabSpace.enter({
-        username: context.state.myClientId,
-        initials: context.state.myClientId.slice(-2).toUpperCase(),
-        avatarColour: context.state.allAvatarColours[Math.floor(Math.random() * context.state.allAvatarColours.length)]
+      ablyClient.connection.once("connected", () => {
+        const spaceClient = new Spaces(ablyClient);
+        const collabSpace = spaceClient.get("text-editor");
+        context.commit("setAblyClient", ablyClient);
+        context.commit("setSpaceClient", spaceClient);
+        context.commit("setCollabSpace", collabSpace);
+        context.commit("setMyClientId", ablyClient.auth.clientId);
+        context.state.collabSpace.enter({
+          username: context.state.myClientId,
+          initials: context.state.myClientId.slice(-2).toUpperCase(),
+          avatarColour: context.state.allAvatarColours[Math.floor(Math.random() * context.state.allAvatarColours.length)]
+        });
+        context.dispatch("subscribeToMembers");
+        context.dispatch("subscribeToLocations");
+        context.dispatch("subscribeToCursors");
       });
-      context.dispatch("subscribeToMembers");
-      context.dispatch("subscribeToLocations");
     },
-    generateMyClientId(context) {
-      context.commit("setMyClientId", Math.random().toString(36).substring(2, 16));
-    },
+    // generateMyClientId(context) {
+    //   context.commit("setMyClientId", Math.random().toString(36).substring(2, 16));
+    // },
     subscribeToMembers(context) {
       context.state.collabSpace.on("membersUpdate", (members) => {
         context.commit("setCollabMembers", members);
@@ -80,6 +84,15 @@ export default new Vuex.Store({
     },
     setBlockLocation(context, element) {
       context.state.collabSpace.locations.set({ divId: element.target.id });
+    },
+    subscribeToCursors(context) {
+      context.state.pointer = context.state.collabSpace.cursors.get("pointer");
+      context.state.collabSpace.cursors.on("cursorsUpdate", (event) => {
+        console.log(event);
+      });
+    },
+    setCursorLocation(context, xPos, yPos) {
+      context.state.pointer.set({ position: { x: xPos, y: yPos }, data: { color: "red" } });
     }
   }
 });
