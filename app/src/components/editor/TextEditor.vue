@@ -2,6 +2,14 @@
   <div class="bg-white text-left p-2.5 font-ui-sans-serif mx-11" @mousemove="mouseMove">
     <AvatarStack />
     <Cursors />
+    <!-- <div class="flex flex-1 flex-row">
+      <div class="w-5 flex flex-col justify-center">
+        <div class="flex -space-x-2 justify-end">
+          <div class="relative inline-flex items-center justify-center w-5 h-5 ring-2 ring-white rounded-full bg-red-600">
+            <span class="font-medium text-xs text-white dark:text-white"> TR </span>
+          </div>
+        </div>
+      </div> -->
     <div
       id="header-h1"
       class="text-4xl font-black p-2 hover:bg-gray-100 border border-transparent"
@@ -11,7 +19,9 @@
     >
       👩🏻‍💻 Collaborative block text editor
     </div>
+    <!-- </div> -->
     <hr class="h-px my-8 bg-gray-300 border-1 dark:bg-gray-300" />
+
     <div
       id="header-h2-1"
       class="text-3xl font-bold p-2 hover:bg-gray-100 border border-transparent"
@@ -125,7 +135,7 @@ export default {
   },
   watch: {
     getLocationUpdate: function (update) {
-      console.log("CLASS UPDATE CALLED", update);
+      console.log("LOCATION UPDATE - CSS CLASS UPDATE", update);
       const currentElement = document.getElementById(update.currentLocation.divId);
       const oldElement = document.getElementById(update.previousLocation.divId);
       const memberAvatarColour = update.member.profileData.avatarColour;

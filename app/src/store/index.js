@@ -47,9 +47,8 @@ export default new Vuex.Store({
   },
   actions: {
     instantiateAbly(context) {
-      //context.dispatch("generateMyClientId");
       const ablyClient = new Ably.Realtime({
-        authUrl: "http://localhost:8082/auth-ably"
+        authUrl: "https://collaborative-text-editor-ably.herokuapp.com/auth-ably"
       });
       ablyClient.connection.once("connected", () => {
         const spaceClient = new Spaces(ablyClient);
@@ -68,9 +67,6 @@ export default new Vuex.Store({
         context.dispatch("subscribeToCursors");
       });
     },
-    // generateMyClientId(context) {
-    //   context.commit("setMyClientId", Math.random().toString(36).substring(2, 16));
-    // },
     subscribeToMembers(context) {
       context.state.collabSpace.on("membersUpdate", (members) => {
         context.commit("setCollabMembers", members);
