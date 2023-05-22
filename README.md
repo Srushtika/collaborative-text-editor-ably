@@ -1,19 +1,37 @@
-# text-editor-vue
+This is a WIP demo of a collaborative text editor built with [Ably Collaboration SDK](https://github.com/ably-labs/spaces).
 
-## Project setup
+## How to run it locally
+
+1. Sign up to Ably and [create a free account](https://ably.com/sign-up) to get your API Key.
+
+2. Create a `.env` file and add your Ably API Key:
+
 ```
+ABLY_API_KEY=<YOUR-ABLY-API-KEY>
+```
+
+3. Install Vue2 app's dependencies:
+
+```
+cd app
 npm install
 ```
 
-### Compiles and hot-reloads for development
+4. Switch to project root and install server's dependencies:
+
 ```
-npm run serve
+cd ..
+npm install
 ```
 
-### Compiles and minifies for production
+5. Run the server:
+
 ```
-npm run build
+node server.js
 ```
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+6. Open the app in the browser using the following URL (emulate multiple users by opening it in multiple tabs):
+
+```
+http://localhost:8082/
+```
