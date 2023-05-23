@@ -14,7 +14,30 @@ export default new Vuex.Store({
     allAvatarColours: ["red", "orange", "green", "amber", "lime", "cyan", "blue", "indigo"],
     collabMembers: [],
     locationUpdate: {},
-    pointer: null
+    pointer: null,
+    textEditorContentBlocks: [
+      { id: "header-h1", type: "div", styling: "text-4xl font-black", content: "👩🏻‍💻 Collaborative block text editor" },
+      { id: "hr-1", type: "hr", styling: "h-px my-8 bg-gray-300 border-1 dark:bg-gray-300" },
+      {
+        id: "body-1",
+        type: "div",
+        styling: "text-lg",
+        content:
+          "👋 Welcome! This is a demo text editor powered by Ably's Realtime Collaboration SDK. Open another instance of this in a new tab and explore the multiplayer collaboration features."
+      },
+      {
+        id: "body-2",
+        type: "div",
+        styling: "text-lg",
+        content: "Available features:",
+        listItems: ["Avatar Stack", "User in-app location", "Live cursors", "Field locking", "Live app updates"]
+      },
+      { id: "hr-2", type: "hr", styling: "h-px my-8 bg-gray-300 border-1 dark:bg-gray-300" },
+      { id: "header-h2-2", type: "div", styling: "text-lg pl-2", content: "TODOs" },
+      { id: "chk-1", type: "checkbox", styling: "text-lg pl-2", content: "Tried the demo", isChecked: true },
+      { id: "chk-2", type: "checkbox", styling: "text-lg pl-2", content: "Checked out the GitHub repo", isChecked: false },
+      { id: "chk-3", type: "checkbox", styling: "text-lg pl-2", content: "Signed up to Ably", isChecked: true }
+    ]
   },
   getters: {
     getAblyClient: (state) => state.ablyClient,
@@ -22,7 +45,8 @@ export default new Vuex.Store({
     getMyClientId: (state) => state.myClientId,
     getCollabSpace: (state) => state.collabSpace,
     getCollabMembers: (state) => state.collabMembers,
-    getLocationUpdate: (state) => state.locationUpdate
+    getLocationUpdate: (state) => state.locationUpdate,
+    getTextEditorContentBlocks: (state) => state.textEditorContentBlocks
   },
 
   mutations: {
@@ -48,7 +72,8 @@ export default new Vuex.Store({
   actions: {
     instantiateAbly(context) {
       const ablyClient = new Ably.Realtime({
-        authUrl: "https://collaborative-text-editor-ably.herokuapp.com/auth-ably"
+        authUrl: "/auth-ably"
+        //authUrl: "http://localhost:8082/auth-ably"
       });
       ablyClient.connection.once("connected", () => {
         const spaceClient = new Spaces(ablyClient);
@@ -79,7 +104,7 @@ export default new Vuex.Store({
       });
     },
     setBlockLocation(context, element) {
-      context.state.collabSpace.locations.set({ divId: element.target.id });
+      context.state.collabSpace.locations.set({ blockId: element.target.id });
     },
     subscribeToCursors(context) {
       context.state.pointer = context.state.collabSpace.cursors.get("pointer");
