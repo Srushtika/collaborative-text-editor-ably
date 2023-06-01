@@ -15,28 +15,39 @@ export default new Vuex.Store({
     collabMembers: [],
     locationUpdate: {},
     pointer: null,
+    textUpdatesChannel: null,
+    textUpdate: null,
     textEditorContentBlocks: [
-      { id: "header-h1", type: "div", styling: "text-4xl font-black", content: "👩🏻‍💻 Collaborative block text editor" },
-      { id: "hr-1", type: "hr", styling: "h-px my-8 bg-gray-300 border-1 dark:bg-gray-300" },
+      { id: "header-h1", type: "div", styling: "text-4xl font-black", content: "👩🏻‍💻 Collaborative block text editor", caretPos: null },
+      { id: "hr-1", type: "hr", styling: "h-px my-8 bg-gray-300 border-1 dark:bg-gray-300", caretPos: null },
       {
         id: "body-1",
         type: "div",
         styling: "text-lg",
         content:
-          "👋 Welcome! This is a demo text editor powered by Ably's Realtime Collaboration SDK. Open another instance of this in a new tab and explore the multiplayer collaboration features."
+          "👋 Welcome! This is a demo text editor powered by Ably's Realtime Collaboration SDK. Open another instance of this in a new tab and explore the multiplayer collaboration features.",
+        caretPos: null
       },
       {
         id: "body-2",
         type: "div",
         styling: "text-lg",
         content: "Available features:",
-        listItems: ["Avatar Stack", "User in-app location", "Live cursors", "Field locking", "Live app updates"]
+        caretPos: null
       },
-      { id: "hr-2", type: "hr", styling: "h-px my-8 bg-gray-300 border-1 dark:bg-gray-300" },
-      { id: "header-h2-2", type: "div", styling: "text-lg pl-2", content: "TODOs" },
-      { id: "chk-1", type: "checkbox", styling: "text-lg pl-2", content: "Tried the demo", isChecked: true },
-      { id: "chk-2", type: "checkbox", styling: "text-lg pl-2", content: "Checked out the GitHub repo", isChecked: false },
-      { id: "chk-3", type: "checkbox", styling: "text-lg pl-2", content: "Signed up to Ably", isChecked: true }
+      {
+        id: "body-3",
+        type: "div",
+        styling: "text-lg",
+        content: "",
+        listItems: ["Avatar Stack", "User in-app location", "Live cursors", "Field locking", "Live app updates"],
+        caretPos: null
+      },
+      { id: "hr-2", type: "hr", styling: "h-px my-8 bg-gray-300 border-1 dark:bg-gray-300", caretPos: null },
+      { id: "header-h2-2", type: "div", styling: "text-lg pl-2", content: "TODOs", caretPos: null },
+      { id: "chk-1", type: "checkbox", styling: "text-lg pl-2", content: "Tried the demo", isChecked: true, caretPos: null },
+      { id: "chk-2", type: "checkbox", styling: "text-lg pl-2", content: "Checked out the GitHub repo", isChecked: false, caretPos: null },
+      { id: "chk-3", type: "checkbox", styling: "text-lg pl-2", content: "Signed up to Ably", isChecked: true, caretPos: null }
     ]
   },
   getters: {
@@ -46,7 +57,9 @@ export default new Vuex.Store({
     getCollabSpace: (state) => state.collabSpace,
     getCollabMembers: (state) => state.collabMembers,
     getLocationUpdate: (state) => state.locationUpdate,
-    getTextEditorContentBlocks: (state) => state.textEditorContentBlocks
+    getTextEditorContentBlocks: (state) => state.textEditorContentBlocks,
+    getTextUpdatesChannel: (state) => state.textUpdatesChannel,
+    getTextUpdate: (state) => state.textUpdate
   },
 
   mutations: {
@@ -67,6 +80,26 @@ export default new Vuex.Store({
     },
     setLocationUpdate(state, change) {
       state.locationUpdate = change;
+    },
+    updateTextEditorContentBlocks(state, update) {
+      const type = update.data.type;
+      const listItems = update.data.text;
+      state.textEditorContentBlocks.forEach((val, index, arr) => {
+        if (arr[index].id == update.data.blockId) {
+          if (type == "div") {
+            state.textEditorContentBlocks[index].content = update.data.text;
+          } else if (type == "list") {
+            state.textEditorContentBlocks[index].listItems = update.data.text;
+          }
+        }
+        state.textEditorContentBlocks[index].caretPos = update.data.caretPos;
+      });
+    },
+    setTextUpdatesChannel(state, channel) {
+      state.textUpdatesChannel = channel;
+    },
+    setTextUpdate(state, update) {
+      state.textUpdate = update;
     }
   },
   actions: {
@@ -88,6 +121,7 @@ export default new Vuex.Store({
           avatarColour: context.state.allAvatarColours[Math.floor(Math.random() * context.state.allAvatarColours.length)]
         });
         context.dispatch("subscribeToMembers");
+        context.dispatch("subscribeToTextUpdateChannel");
         context.dispatch("subscribeToLocations");
         context.dispatch("subscribeToCursors");
       });
@@ -96,6 +130,13 @@ export default new Vuex.Store({
       context.state.collabSpace.on("membersUpdate", (members) => {
         context.commit("setCollabMembers", members);
         console.log("Total user count", context.state.collabMembers.length, "Members:", context.state.collabMembers[0].location);
+      });
+    },
+    subscribeToTextUpdateChannel(context) {
+      const textUpdateChannel = context.state.ablyClient.channels.get("text-updates");
+      context.commit("setTextUpdatesChannel", textUpdateChannel);
+      textUpdateChannel.subscribe((update) => {
+        context.commit("updateTextEditorContentBlocks", update);
       });
     },
     subscribeToLocations(context) {
@@ -114,6 +155,9 @@ export default new Vuex.Store({
     },
     setCursorLocation(context, xPos, yPos) {
       context.state.pointer.set({ position: { x: xPos, y: yPos }, data: { color: "red" } });
+    },
+    updateTextContentGlobally(context, update) {
+      context.state.textUpdatesChannel.publish("newText", update);
     }
   }
 });

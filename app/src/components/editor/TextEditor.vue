@@ -42,6 +42,9 @@ export default {
     AvatarStack,
     Cursors,
     TextBlock
+  },
+  updated() {
+    console.log("PARENT UPDATED");
   }
 };
 </script>

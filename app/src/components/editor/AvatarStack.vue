@@ -43,7 +43,6 @@ export default {
   },
   watch: {
     getCollabMembers: function (arr) {
-      console.log("RECEIVED MESSAGE IN COMPONENT", arr);
       this.collabMembersArr = arr;
     }
   }

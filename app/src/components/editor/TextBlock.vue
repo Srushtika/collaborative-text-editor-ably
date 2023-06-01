@@ -8,6 +8,7 @@
       style="outline: 0px solid transparent"
       contenteditable
       @focus="setBlockLocation($event)"
+      @input="onInput"
     >
       {{ contentBlock.content }}
       <ul v-if="contentBlock.listItems" v-for="item in contentBlock.listItems" class="list-disc pl-5">
@@ -76,14 +77,54 @@ export default {
     }
   },
   methods: {
-    ...mapActions(["setBlockLocation", "setCursorLocation"]),
+    ...mapActions(["setBlockLocation", "setCursorLocation", "updateTextContentGlobally"]),
     mouseMove(event) {
       // this.setCursorLocation(event.clientX, event.clientY);
+    },
+    onInput(event) {
+      if (event.srcElement.childNodes[event.srcElement.childNodes.length - 1].nodeName == "UL") {
+        const htmlColl = document.getElementById(event.target.id).getElementsByTagName("li");
+
+        const text = [...htmlColl].map((item) => item.innerText);
+        this.updateTextContentGlobally({ blockId: event.target.id, text: text, type: "list", caretPos: this.getCaretPos() });
+      } else {
+        this.updateTextContentGlobally({ blockId: event.target.id, text: event.target.innerText, type: "div", caretPos: this.getCaretPos() });
+      }
+    },
+    getCaretPos() {
+      const element = document.getElementById(this.contentBlock.id);
+      let position = 0;
+      const isSupported = typeof window.getSelection !== "undefined";
+      if (isSupported) {
+        const selection = window.getSelection();
+        if (selection.rangeCount !== 0) {
+          const range = window.getSelection().getRangeAt(0);
+          const preCaretRange = range.cloneRange();
+          preCaretRange.selectNodeContents(element);
+          preCaretRange.setEnd(range.endContainer, range.endOffset);
+          position = preCaretRange.toString().length;
+        }
+      }
+      return position;
     }
   },
   components: {},
   created() {
     console.log("COMPONENT CREATED");
+  },
+  updated() {
+    const element = document.getElementById(this.contentBlock.id);
+    element.focus();
+    let sel;
+    let char = this.contentBlock.caretPos;
+    if (document.selection) {
+      sel = document.selection.createRange();
+      sel.moveStart("character", char);
+      sel.select();
+    } else {
+      sel = window.getSelection();
+      sel.collapse(element.firstChild, char);
+    }
   }
 };
 </script>
