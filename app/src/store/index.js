@@ -84,6 +84,7 @@ export default new Vuex.Store({
     updateTextEditorContentBlocks(state, update) {
       const type = update.data.type;
       const listItems = update.data.text;
+      console.log("UPDATE CARET POS", update.data.caretPos);
       state.textEditorContentBlocks.forEach((val, index, arr) => {
         if (arr[index].id == update.data.blockId) {
           if (type == "div") {

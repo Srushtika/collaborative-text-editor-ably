@@ -39,6 +39,8 @@
 </template>
 <script>
 import { mapGetters, mapActions, mapMutations } from "vuex";
+import * as VanillaCaret from "vanilla-caret-js";
+
 export default {
   name: "TextBlock",
   props: ["contentBlock"],
@@ -82,30 +84,16 @@ export default {
       // this.setCursorLocation(event.clientX, event.clientY);
     },
     onInput(event) {
+      const caret = new VanillaCaret(document.getElementById(this.contentBlock.id));
+      const pos = caret.getPos();
+
       if (event.srcElement.childNodes[event.srcElement.childNodes.length - 1].nodeName == "UL") {
         const htmlColl = document.getElementById(event.target.id).getElementsByTagName("li");
-
         const text = [...htmlColl].map((item) => item.innerText);
-        this.updateTextContentGlobally({ blockId: event.target.id, text: text, type: "list", caretPos: this.getCaretPos() });
+        this.updateTextContentGlobally({ blockId: event.target.id, text: text, type: "list", caretPos: pos });
       } else {
-        this.updateTextContentGlobally({ blockId: event.target.id, text: event.target.innerText, type: "div", caretPos: this.getCaretPos() });
+        this.updateTextContentGlobally({ blockId: event.target.id, text: event.target.innerText, type: "div", caretPos: pos });
       }
-    },
-    getCaretPos() {
-      const element = document.getElementById(this.contentBlock.id);
-      let position = 0;
-      const isSupported = typeof window.getSelection !== "undefined";
-      if (isSupported) {
-        const selection = window.getSelection();
-        if (selection.rangeCount !== 0) {
-          const range = window.getSelection().getRangeAt(0);
-          const preCaretRange = range.cloneRange();
-          preCaretRange.selectNodeContents(element);
-          preCaretRange.setEnd(range.endContainer, range.endOffset);
-          position = preCaretRange.toString().length;
-        }
-      }
-      return position;
     }
   },
   components: {},
@@ -113,18 +101,8 @@ export default {
     console.log("COMPONENT CREATED");
   },
   updated() {
-    const element = document.getElementById(this.contentBlock.id);
-    element.focus();
-    let sel;
-    let char = this.contentBlock.caretPos;
-    if (document.selection) {
-      sel = document.selection.createRange();
-      sel.moveStart("character", char);
-      sel.select();
-    } else {
-      sel = window.getSelection();
-      sel.collapse(element.firstChild, char);
-    }
+    const caret = new VanillaCaret(document.getElementById(this.contentBlock.id));
+    caret.setPos(this.contentBlock.caretPos);
   }
 };
 </script>
