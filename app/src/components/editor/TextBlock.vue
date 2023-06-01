@@ -24,6 +24,7 @@
       contenteditable
       style="outline: 0px solid transparent"
       @focus="setBlockLocation($event)"
+      @input="onInput"
     >
       <input
         :id="contentBlock.id + 'box'"
@@ -32,6 +33,7 @@
         value=""
         class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
         style="outline: 0px solid transparent"
+        @click="onChecked"
       />
       <label :for="contentBlock.id + 'box'" class="ml-2 checkbox-1">{{ contentBlock.content }}</label>
     </div>
@@ -86,14 +88,18 @@ export default {
     onInput(event) {
       const caret = new VanillaCaret(document.getElementById(this.contentBlock.id));
       const pos = caret.getPos();
-
-      if (event.srcElement.childNodes[event.srcElement.childNodes.length - 1].nodeName == "UL") {
+      const childElement = event.srcElement.childNodes[event.srcElement.childNodes.length - 1];
+      if (childElement && childElement.nodeName == "UL") {
         const htmlColl = document.getElementById(event.target.id).getElementsByTagName("li");
         const text = [...htmlColl].map((item) => item.innerText);
         this.updateTextContentGlobally({ blockId: event.target.id, text: text, type: "list", caretPos: pos });
       } else {
         this.updateTextContentGlobally({ blockId: event.target.id, text: event.target.innerText, type: "div", caretPos: pos });
       }
+    },
+    onChecked() {
+      const chkBoxElement = document.getElementById(this.contentBlock.id + "box");
+      this.updateTextContentGlobally({ blockId: this.contentBlock.id, type: "checkbox", isChecked: chkBoxElement.checked });
     }
   },
   components: {},

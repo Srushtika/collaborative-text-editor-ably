@@ -91,6 +91,8 @@ export default new Vuex.Store({
             state.textEditorContentBlocks[index].content = update.data.text;
           } else if (type == "list") {
             state.textEditorContentBlocks[index].listItems = update.data.text;
+          } else if (type == "checkbox") {
+            state.textEditorContentBlocks[index].isChecked = update.data.isChecked;
           }
         }
         state.textEditorContentBlocks[index].caretPos = update.data.caretPos;
