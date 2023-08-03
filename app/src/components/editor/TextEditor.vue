@@ -1,7 +1,10 @@
 <template>
   <div class="bg-white text-left p-2.5 font-ui-sans-serif mx-11" @mousemove="mouseMove">
+    <p>{{ allCursorsArr }}</p>
+    <!-- <Cursors v-for="clientCursor in allCursorsArr" :key="clientCursor.clientId" :clientCursor="clientCursor" /> -->
+
     <AvatarStack />
-    <Cursors />
+
     <TextBlock v-for="contentBlock in getTextEditorContentBlocks" :key="contentBlock.id" :contentBlock="contentBlock" />
   </div>
 </template>
@@ -25,17 +28,22 @@ export default {
         cyan: "border-cyan-400",
         blue: "border-blue-400",
         indigo: "border-indigo-400"
-      }
+      },
+      allCursorsArr: []
     };
   },
   computed: {
-    ...mapGetters(["getTextEditorContentBlocks"])
+    ...mapGetters(["getTextEditorContentBlocks", "getMyCursors"])
   },
-  watch: {},
+  watch: {
+    getMyCursors: function (update) {
+      console.log("WE ARE HERE", update);
+    }
+  },
   methods: {
     ...mapActions(["setBlockLocation", "setCursorLocation"]),
     mouseMove(event) {
-      // this.setCursorLocation(event.clientX, event.clientY);
+      this.setCursorLocation({ x: event.clientX, y: event.clientY });
     }
   },
   components: {

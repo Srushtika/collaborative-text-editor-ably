@@ -66,17 +66,19 @@ export default {
   },
   watch: {
     getLocationUpdate: function (update) {
-      const currentElement = document.getElementById(update.currentLocation.blockId);
-      const oldElement = document.getElementById(update.previousLocation.blockId);
-      const memberAvatarColour = update.member.profileData.avatarColour;
-      const borderColour = this.borderColours[memberAvatarColour];
+      if (update.currentLocation) {
+        const currentElement = document.getElementById(update.currentLocation.blockId);
+        const oldElement = document.getElementById(update.previousLocation.blockId);
+        const memberAvatarColour = update.member.profileData.avatarColour;
+        const borderColour = this.borderColours[memberAvatarColour];
 
-      //hack until it's fixed in the API
-      if (update.currentLocation.blockId != update.previousLocation.blockId) {
-        if (currentElement) currentElement.classList.replace("border-transparent", borderColour);
-        if (oldElement) oldElement.classList.replace(borderColour, "border-transparent");
-      } else {
-        currentElement.classList.replace("border-transparent", borderColour);
+        //hack until it's fixed in the API
+        if (update.currentLocation.blockId != update.previousLocation.blockId) {
+          if (currentElement) currentElement.classList.replace("border-transparent", borderColour);
+          if (oldElement) oldElement.classList.replace(borderColour, "border-transparent");
+        } else {
+          currentElement.classList.replace("border-transparent", borderColour);
+        }
       }
     }
   },

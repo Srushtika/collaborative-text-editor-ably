@@ -14,7 +14,8 @@ export default new Vuex.Store({
     allAvatarColours: ["red", "orange", "green", "amber", "lime", "cyan", "blue", "indigo"],
     collabMembers: [],
     locationUpdate: {},
-    pointer: null,
+    cursorInstance: null,
+    allCursorsArr: [],
     textUpdatesChannel: null,
     textUpdate: null,
     textEditorContentBlocks: [
@@ -59,7 +60,9 @@ export default new Vuex.Store({
     getLocationUpdate: (state) => state.locationUpdate,
     getTextEditorContentBlocks: (state) => state.textEditorContentBlocks,
     getTextUpdatesChannel: (state) => state.textUpdatesChannel,
-    getTextUpdate: (state) => state.textUpdate
+    getTextUpdate: (state) => state.textUpdate,
+    getAllCursorsArr: (state) => state.allCursorsArr,
+    getMyCursors: (state) => state.allCursorsArr
   },
 
   mutations: {
@@ -103,31 +106,48 @@ export default new Vuex.Store({
     },
     setTextUpdate(state, update) {
       state.textUpdate = update;
+    },
+    setCursorInstance(state, instance) {
+      state.cursorInstance = instance;
+    },
+    setAllCursorsArr(state, update) {
+      state.allCursorsArr[update.clientId] = update;
+      console.log(state.allCursorsArr);
+      /**
+       *
+       * client id shouldn't be used, connection id to be used instead because clientid stays the same for two different tabs
+       * - one state for slides, cursors are completely separate
+       * - array of people from memberUpdates, cursor update you get connection id, you need to merge them - efficiency in terms of the position
+       * - having the array: array is not wrong but dom's thinking was
+       *  you need different nodes at once - in reality it happens sequentially
+       * iterating on the array might be less efficient eventually
+       * you create a map from connection id to listener, this is in atomic exmaples
+       */
     }
   },
   actions: {
-    instantiateAbly(context) {
+    async instantiateAbly(context) {
       const ablyClient = new Ably.Realtime({
-        authUrl: "/auth-ably"
-        //authUrl: "http://localhost:8082/auth-ably"
+        //authUrl: "/auth-ably"
+        authUrl: "http://localhost:8082/auth-ably"
       });
-      ablyClient.connection.once("connected", () => {
-        const spaceClient = new Spaces(ablyClient);
-        const collabSpace = spaceClient.get("text-editor");
-        context.commit("setAblyClient", ablyClient);
-        context.commit("setSpaceClient", spaceClient);
-        context.commit("setCollabSpace", collabSpace);
-        context.commit("setMyClientId", ablyClient.auth.clientId);
-        context.state.collabSpace.enter({
-          username: context.state.myClientId,
-          initials: context.state.myClientId.slice(-2).toUpperCase(),
-          avatarColour: context.state.allAvatarColours[Math.floor(Math.random() * context.state.allAvatarColours.length)]
-        });
-        context.dispatch("subscribeToMembers");
-        context.dispatch("subscribeToTextUpdateChannel");
-        context.dispatch("subscribeToLocations");
-        context.dispatch("subscribeToCursors");
+      //ablyClient.connection.once("connected", () => {
+      const spaceClient = new Spaces(ablyClient);
+      const collabSpace = await spaceClient.get("text-editor");
+      context.commit("setAblyClient", ablyClient);
+      context.commit("setSpaceClient", spaceClient);
+      context.commit("setCollabSpace", collabSpace);
+      context.commit("setMyClientId", ablyClient.auth.clientId);
+      context.state.collabSpace.enter({
+        username: context.state.myClientId,
+        initials: context.state.myClientId.slice(-2).toUpperCase(),
+        avatarColour: context.state.allAvatarColours[Math.floor(Math.random() * context.state.allAvatarColours.length)]
       });
+      context.dispatch("subscribeToMembers");
+      context.dispatch("subscribeToTextUpdateChannel");
+      context.dispatch("subscribeToLocations");
+      context.dispatch("subscribeToCursors");
+      // });
     },
     subscribeToMembers(context) {
       context.state.collabSpace.on("membersUpdate", (members) => {
@@ -151,13 +171,15 @@ export default new Vuex.Store({
       context.state.collabSpace.locations.set({ blockId: element.target.id });
     },
     subscribeToCursors(context) {
-      context.state.pointer = context.state.collabSpace.cursors.get("pointer");
-      context.state.collabSpace.cursors.on("cursorsUpdate", (event) => {
-        console.log(event);
+      const cursorInstance = context.state.collabSpace.cursors.get("pointer");
+      context.commit("setCursorInstance", cursorInstance);
+      context.state.cursorInstance.on((event) => {
+        context.commit("setAllCursorsArr", event);
       });
     },
-    setCursorLocation(context, xPos, yPos) {
-      context.state.pointer.set({ position: { x: xPos, y: yPos }, data: { color: "red" } });
+    setCursorLocation(context, pos) {
+      console.log("in text editor", context, pos.x, pos.y);
+      context.state.cursorInstance.set({ position: { x: pos.x, y: pos.y }, data: { color: "red" } });
     },
     updateTextContentGlobally(context, update) {
       context.state.textUpdatesChannel.publish("newText", update);
