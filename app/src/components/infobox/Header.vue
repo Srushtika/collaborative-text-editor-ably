@@ -4,7 +4,7 @@
       <a href="#">
         <h5 class="mb-2 text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">How to try this demo</h5>
       </a>
-      <p class="mb-3 font-normal text-gray-500 dark:text-gray-400">Open this app in a new tab or share it with friends. Play around with the text editor by editing the text.</p>
+      <p class="mb-3 font-normal text-gray-500 dark:text-gray-400">Open this app in a new tab or share it with friends.</p>
       <a href="https://github.com/ably-labs/collaborative-text-editor-ably" target="_blank" class="inline-flex items-center text-blue-600 hover:underline">
         See it on GitHub
         <svg class="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
@@ -15,27 +15,11 @@
     </div>
     <div class="mx-2 p-6 bg-white rounded-lg shadow dark:bg-gray-800">
       <a href="#">
-        <h5 class="mb-2 text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">Powered by Ably Collaboration SDK</h5>
+        <h5 class="mb-2 text-2xl font-semibold tracking-tight text-gray-900 dark:text-white">Powered by Ably Spaces SDK</h5>
       </a>
       <p class="mb-3 font-normal text-gray-500 dark:text-gray-400">
-        The Collaboration SDK enables realtime collaborative features like avatar stacks, user location, live cursors, field locking and more, all of which increase productivity
-        with apps used in remote workplaces.
+        The Spaces SDK helps you build collaborative environments for your application to enable synchrnous collaboration between members.
       </p>
-      <p class="font-normal text-gray-500 dark:text-gray-400">1. Instantiate a collaborative space</p>
-    </div>
-    <div class="mx-2 p-6 bg-white rounded-lg shadow dark:bg-gray-800">
-      <p class="mb-3 font-normal text-gray-500 dark:text-gray-400">
-        The Collaboration SDK enables realtime collaborative features like avatar stacks, user location, live cursors, field locking and more, all of which increase productivity
-        with apps used in remote workplaces.
-      </p>
-      <p class="font-normal text-gray-500 dark:text-gray-400">1. Instantiate a collaborative space</p>
-    </div>
-    <div class="mx-2 p-6 bg-white rounded-lg shadow dark:bg-gray-800">
-      <p class="mb-3 font-normal text-gray-500 dark:text-gray-400">
-        The Collaboration SDK enables realtime collaborative features like avatar stacks, user location, live cursors, field locking and more, all of which increase productivity
-        with apps used in remote workplaces.
-      </p>
-      <p class="font-normal text-gray-500 dark:text-gray-400">1. Instantiate a collaborative space</p>
     </div>
   </div>
 </template>

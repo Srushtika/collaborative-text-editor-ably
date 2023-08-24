@@ -1,41 +1,48 @@
 <template>
   <div>
-    <div
-      v-if="contentBlock.type == 'div'"
-      :id="contentBlock.id"
-      class="p-2 hover:bg-gray-100 border border-transparent"
-      :class="contentBlock.styling"
-      style="outline: 0px solid transparent"
-      contenteditable
-      @focus="setBlockLocation($event)"
-      @input="onInput"
-    >
-      {{ contentBlock.content }}
-      <ul v-if="contentBlock.listItems" v-for="item in contentBlock.listItems" class="list-disc pl-5">
-        <li>{{ item }}</li>
-      </ul>
-    </div>
-    <hr v-if="contentBlock.type == 'hr'" class="h-px my-8 bg-gray-300 border-1 dark:bg-gray-300" />
-    <div
-      v-if="contentBlock.type == 'checkbox'"
-      :id="contentBlock.id"
-      class="hover:bg-gray-100 flex items-center border border-transparent"
-      :class="contentBlock.styling"
-      contenteditable
-      style="outline: 0px solid transparent"
-      @focus="setBlockLocation($event)"
-      @input="onInput"
-    >
-      <input
-        :id="contentBlock.id + 'box'"
-        :checked="contentBlock.isChecked"
-        type="checkbox"
-        value=""
-        class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+    <div class="relative">
+      <div
+        v-if="contentBlock.type == 'div'"
+        :id="contentBlock.id"
+        class="p-2 hover:bg-gray-100 border border-transparent"
+        :class="contentBlock.styling"
         style="outline: 0px solid transparent"
-        @click="onChecked"
-      />
-      <label :for="contentBlock.id + 'box'" class="ml-2 checkbox-1">{{ contentBlock.content }}</label>
+        contenteditable
+        @keydown.enter.prevent
+        @focus="setBlockLocation($event)"
+        @input="onInput"
+      >
+        {{ contentBlock.content }}
+        <ul v-if="contentBlock.listItems" v-for="item in contentBlock.listItems" class="list-disc pl-5">
+          <li>{{ item }}</li>
+        </ul>
+      </div>
+      <hr v-if="contentBlock.type == 'hr'" class="h-px my-8 bg-gray-300 border-1 dark:bg-gray-300" />
+      <div
+        v-if="contentBlock.type == 'checkbox'"
+        :id="contentBlock.id"
+        class="hover:bg-gray-100 flex items-center border border-transparent"
+        :class="contentBlock.styling"
+        contenteditable
+        @keydown.enter.prevent
+        style="outline: 0px solid transparent"
+        @focus="setBlockLocation($event)"
+        @input="onInput"
+      >
+        <input
+          :id="contentBlock.id + 'box'"
+          :checked="contentBlock.isChecked"
+          type="checkbox"
+          value=""
+          class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+          style="outline: 0px solid transparent"
+          @click="onChecked"
+        />
+        <label :for="contentBlock.id + 'box'" class="ml-2 checkbox-1">{{ contentBlock.content }}</label>
+      </div>
+      <!-- <div id="memberAtLocation" class="absolute top-0 right-0 bg-gray-400" v-if="showLabel">
+        <p>Absolute child</p>
+      </div> -->
     </div>
   </div>
 </template>
@@ -58,7 +65,8 @@ export default {
         cyan: "border-cyan-400",
         blue: "border-blue-400",
         indigo: "border-indigo-400"
-      }
+      },
+      showLabel: false
     };
   },
   computed: {
@@ -79,14 +87,12 @@ export default {
         } else {
           currentElement.classList.replace("border-transparent", borderColour);
         }
+        this.showLabel = true;
       }
     }
   },
   methods: {
-    ...mapActions(["setBlockLocation", "setCursorLocation", "updateTextContentGlobally"]),
-    mouseMove(event) {
-      // this.setCursorLocation(event.clientX, event.clientY);
-    },
+    ...mapActions(["setBlockLocation", "updateTextContentGlobally"]),
     onInput(event) {
       const caret = new VanillaCaret(document.getElementById(this.contentBlock.id));
       const pos = caret.getPos();
