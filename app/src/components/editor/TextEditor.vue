@@ -1,14 +1,12 @@
 <template>
-  <div class="bg-white text-left p-2.5 font-ui-sans-serif mx-11" @mousemove="mouseMove">
+  <div class="bg-white text-left p-2.5 font-ui-sans-serif mx-11">
     <AvatarStack />
-    <Cursors />
     <TextBlock v-for="contentBlock in getTextEditorContentBlocks" :key="contentBlock.id" :contentBlock="contentBlock" />
   </div>
 </template>
 
 <script>
 import AvatarStack from "./AvatarStack.vue";
-import Cursors from "./Cursors.vue";
 import TextBlock from "./TextBlock.vue";
 import { mapGetters, mapActions, mapMutations } from "vuex";
 export default {
@@ -31,16 +29,11 @@ export default {
   computed: {
     ...mapGetters(["getTextEditorContentBlocks"])
   },
-  watch: {},
   methods: {
-    ...mapActions(["setBlockLocation", "setCursorLocation"]),
-    mouseMove(event) {
-      // this.setCursorLocation(event.clientX, event.clientY);
-    }
+    ...mapActions(["setBlockLocation"])
   },
   components: {
     AvatarStack,
-    Cursors,
     TextBlock
   },
   updated() {

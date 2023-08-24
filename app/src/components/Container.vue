@@ -1,5 +1,5 @@
 <template>
-  <div class="grid grid-cols-5">
+  <div class="grid grid-cols-5 h-screen">
     <TextEditor class="col-span-3" />
     <CodeSnippet class="col-span-2" />
   </div>

@@ -14,7 +14,6 @@ export default new Vuex.Store({
     allAvatarColours: ["red", "orange", "green", "amber", "lime", "cyan", "blue", "indigo"],
     collabMembers: [],
     locationUpdate: {},
-    pointer: null,
     textUpdatesChannel: null,
     textUpdate: null,
     textEditorContentBlocks: [
@@ -25,7 +24,7 @@ export default new Vuex.Store({
         type: "div",
         styling: "text-lg",
         content:
-          "👋 Welcome! This is a demo text editor powered by Ably's Realtime Collaboration SDK. Open another instance of this in a new tab and explore the multiplayer collaboration features.",
+          "👋 Welcome! This is a demo text editor powered by Ably's Spaces SDK. Open another instance of this in a new tab and explore the multiplayer collaboration features.",
         caretPos: null
       },
       {
@@ -40,7 +39,7 @@ export default new Vuex.Store({
         type: "div",
         styling: "text-lg",
         content: "",
-        listItems: ["Avatar Stack", "User in-app location", "Live cursors", "Field locking", "Live app updates"],
+        listItems: ["Avatar Stack", "User in-app location", "Live cursors", "Component locking", "Live app updates"],
         caretPos: null
       },
       { id: "hr-2", type: "hr", styling: "h-px my-8 bg-gray-300 border-1 dark:bg-gray-300", caretPos: null },
@@ -106,28 +105,26 @@ export default new Vuex.Store({
     }
   },
   actions: {
-    instantiateAbly(context) {
+    async instantiateAbly(context) {
       const ablyClient = new Ably.Realtime({
         authUrl: "/auth-ably"
         //authUrl: "http://localhost:8082/auth-ably"
       });
-      ablyClient.connection.once("connected", () => {
-        const spaceClient = new Spaces(ablyClient);
-        const collabSpace = spaceClient.get("text-editor");
-        context.commit("setAblyClient", ablyClient);
-        context.commit("setSpaceClient", spaceClient);
-        context.commit("setCollabSpace", collabSpace);
-        context.commit("setMyClientId", ablyClient.auth.clientId);
-        context.state.collabSpace.enter({
-          username: context.state.myClientId,
-          initials: context.state.myClientId.slice(-2).toUpperCase(),
-          avatarColour: context.state.allAvatarColours[Math.floor(Math.random() * context.state.allAvatarColours.length)]
-        });
-        context.dispatch("subscribeToMembers");
-        context.dispatch("subscribeToTextUpdateChannel");
-        context.dispatch("subscribeToLocations");
-        context.dispatch("subscribeToCursors");
+      //ablyClient.connection.once("connected", () => {
+      const spaceClient = new Spaces(ablyClient);
+      const collabSpace = await spaceClient.get("text-editor");
+      context.commit("setAblyClient", ablyClient);
+      context.commit("setSpaceClient", spaceClient);
+      context.commit("setCollabSpace", collabSpace);
+      context.commit("setMyClientId", ablyClient.auth.clientId);
+      context.state.collabSpace.enter({
+        username: context.state.myClientId,
+        initials: context.state.myClientId.slice(-2).toUpperCase(),
+        avatarColour: context.state.allAvatarColours[Math.floor(Math.random() * context.state.allAvatarColours.length)]
       });
+      context.dispatch("subscribeToMembers");
+      context.dispatch("subscribeToTextUpdateChannel");
+      context.dispatch("subscribeToLocations");
     },
     subscribeToMembers(context) {
       context.state.collabSpace.on("membersUpdate", (members) => {
@@ -149,15 +146,6 @@ export default new Vuex.Store({
     },
     setBlockLocation(context, element) {
       context.state.collabSpace.locations.set({ blockId: element.target.id });
-    },
-    subscribeToCursors(context) {
-      context.state.pointer = context.state.collabSpace.cursors.get("pointer");
-      context.state.collabSpace.cursors.on("cursorsUpdate", (event) => {
-        console.log(event);
-      });
-    },
-    setCursorLocation(context, xPos, yPos) {
-      context.state.pointer.set({ position: { x: xPos, y: yPos }, data: { color: "red" } });
     },
     updateTextContentGlobally(context, update) {
       context.state.textUpdatesChannel.publish("newText", update);
